@@ -1,0 +1,424 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String       @id @default(uuid())
+  email          String       @unique
+  password       String?
+  name           String
+  avatar         String?
+  phone          String?
+  role           UserRole     @default(USER)
+  status         UserStatus   @default(ACTIVE)
+  lastLogin      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relaciones
+  store           Store?
+  cart            Cart?
+  orders          Order[]
+  reviews         Review[]
+  sentMessages    ChatMessage[] @relation("MessageFrom")
+  receivedMessages ChatMessage[] @relation("MessageTo")
+  notifications   Notification[]
+  behaviors       UserBehavior[]
+  payments        Payment[]
+  sessions        AuthSession[]
+  recommendations Recommendation[]  // Relación agregada
+
+  @@index([role])
+  @@index([status])
+}
+
+model AuthSession {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  refreshToken  String
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum UserRole {
+  ADMIN
+  SELLER
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+model Store {
+  id             String       @id @default(uuid())
+  name           String
+  slug           String       @unique
+  description    String?
+  logo           String?
+  banner         String?
+  isActive       Boolean      @default(true)
+  rating         Float        @default(0)
+  totalReviews   Int          @default(0)
+  totalSales     Int          @default(0)
+  config         Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relaciones
+  owner          User         @relation(fields: [ownerId], references: [id])
+  ownerId        String       @unique
+  products       Product[]
+  orders         Order[]
+  reviews        Review[]
+  analytics      StoreAnalytics?
+  crm            StoreCRM?
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([rating])
+}
+
+model Product {
+  id             String       @id @default(uuid())
+  name           String
+  slug           String       @unique
+  description    String
+  price          Float
+  compareAtPrice Float?
+  cost           Float?
+  stock          Int
+  sku            String?      @unique
+  barcode        String?
+  weight         Float?
+  dimensions     Json?
+  status         ProductStatus @default(ACTIVE)
+  isFeatured     Boolean      @default(false)
+  tags           String[]
+  metadata       Json?
+  views          Int          @default(0)
+  purchases      Int          @default(0)
+  rating         Float        @default(0)
+  totalReviews   Int          @default(0)
+  images         Json?
+  videoUrl       String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relaciones
+  store          Store        @relation(fields: [storeId], references: [id])
+  storeId        String
+  category       Category     @relation(fields: [categoryId], references: [id])
+  categoryId     String
+  orders         OrderItem[]
+  reviews        Review[]
+  recommendations Recommendation[]
+  cartItems      CartItem[]    // Relación agregada
+
+  @@index([slug])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([storeId])
+  // @@fulltext([name, description])  // Comentado porque no es soportado en PostgreSQL
+}
+
+enum ProductStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+  OUT_OF_STOCK
+}
+
+model Category {
+  id             String       @id @default(uuid())
+  name           String
+  slug           String       @unique
+  description    String?
+  parentId       String?
+  parent         Category?    @relation("CategoryParent", fields: [parentId], references: [id])
+  children       Category[]   @relation("CategoryParent")
+  products       Product[]
+  createdAt      DateTime     @default(now())
+
+  @@index([slug])
+}
+
+model Cart {
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String       @unique
+  items          CartItem[]
+  total          Float        @default(0)
+  updatedAt      DateTime     @updatedAt
+}
+
+model CartItem {
+  id             String       @id @default(uuid())
+  cart           Cart         @relation(fields: [cartId], references: [id])
+  cartId         String
+  product        Product      @relation(fields: [productId], references: [id])
+  productId      String
+  quantity       Int          @default(1)
+  priceSnapshot  Float
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id             String       @id @default(uuid())
+  code           String       @unique
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  store          Store        @relation(fields: [storeId], references: [id])
+  storeId        String
+  items          OrderItem[]
+  total          Float
+  status         OrderStatus  @default(PENDING)
+  paymentStatus  PaymentStatus @default(PENDING)
+  shippingStatus ShippingStatus @default(PENDING)
+  shippingAddress Json
+  billingAddress  Json?
+  trackingNumber String?
+  trackingUrl    String?
+  notes          String?
+  payment        Payment?     // Relación agregada
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([code])
+  @@index([status])
+  @@index([userId])
+  @@index([storeId])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum ShippingStatus {
+  PENDING
+  PACKED
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+model OrderItem {
+  id             String       @id @default(uuid())
+  order          Order        @relation(fields: [orderId], references: [id])
+  orderId        String
+  product        Product      @relation(fields: [productId], references: [id])
+  productId      String
+  productName    String
+  productPrice   Float
+  quantity       Int
+  subtotal       Float
+}
+
+model Payment {
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])  // Relación agregada
+  userId         String
+
+  order          Order        @relation(fields: [orderId], references: [id])
+  orderId        String       @unique
+
+  amount         Float
+  currency       String       @default("USD")
+  method         PaymentMethod
+  status         PaymentStatus
+  transactionId  String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([status])
+  @@index([method])
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  TRANSFER
+  CRYPTO
+  MERCADO_PAGO
+}
+
+model Review {
+  id             String       @id @default(uuid())
+  rating         Int
+  comment        String?
+  images         Json?
+  isVerified     Boolean      @default(false)
+  helpfulCount   Int          @default(0)
+  status         ReviewStatus @default(APPROVED)
+  createdAt      DateTime     @default(now())
+
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  product        Product      @relation(fields: [productId], references: [id])
+  productId      String
+  store          Store        @relation(fields: [storeId], references: [id])
+  storeId        String
+
+  @@index([productId])
+  @@index([storeId])
+  @@index([status])
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+model ChatMessage {
+  id             String       @id @default(uuid())
+  from           User         @relation("MessageFrom", fields: [fromId], references: [id])
+  fromId         String
+  to             User         @relation("MessageTo", fields: [toId], references: [id])
+  toId           String
+  message        String
+  read           Boolean      @default(false)
+  metadata       Json?
+  timestamp      DateTime     @default(now())
+
+  @@index([fromId, toId])
+  @@index([read])
+}
+
+model Notification {
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  title          String
+  message        String
+  type           NotificationType
+  read           Boolean      @default(false)
+  actionUrl      String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([userId, read])
+}
+
+enum NotificationType {
+  ORDER_UPDATE
+  MESSAGE
+  REVIEW
+  PROMOTION
+  ALERT
+  SYSTEM
+}
+
+model UserBehavior {
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  eventType      String
+  targetId       String?
+  targetType     String?
+  metadata       Json?
+  timestamp      DateTime     @default(now())
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([targetType, targetId])
+}
+
+model Recommendation {
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  product        Product      @relation(fields: [productId], references: [id])
+  productId      String
+  score          Float
+  reason         String?
+  source         String
+  expiresAt      DateTime
+  createdAt      DateTime     @default(now())
+
+  @@index([userId])
+  @@index([score])
+  @@index([expiresAt])
+}
+
+// === MÓDULOS AVANZADOS ===
+
+model StoreAnalytics {
+  id             String       @id @default(uuid())
+  store          Store        @relation(fields: [storeId], references: [id])
+  storeId        String       @unique
+  totalViews     Int          @default(0)
+  totalSales     Int          @default(0)
+  conversionRate Float        @default(0)
+  avgOrderValue  Float        @default(0)
+  customerLTV    Float        @default(0)
+  lastUpdated    DateTime     @updatedAt
+}
+
+model StoreCRM {
+  id             String       @id @default(uuid())
+  store          Store        @relation(fields: [storeId], references: [id])
+  storeId        String       @unique
+  totalCustomers Int          @default(0)
+  returningRate  Float        @default(0)
+  segments       Json?        // { "frequent": 120, "inactive": 45, "premium": 30 }
+  lastActivity   DateTime?
+}
+
+model AdminAnalytics {
+  id             String       @id @default(uuid())
+  date           DateTime     @unique
+  totalUsers     Int
+  totalStores    Int
+  totalOrders    Int
+  totalRevenue   Float
+  avgTicket      Float
+  conversionRate Float
+  topCategories  Json?        // [{ name: "Electrónica", sales: 12000 }]
+  topSellers     Json?        // [{ storeId: "...", sales: 5000 }]
+}
+
+model FraudDetection {
+  id             String       @id @default(uuid())
+  orderId        String?
+  userId         String?
+  type           String       // "multiple_accounts", "suspicious_ip", "chargeback_risk"
+  score          Float        // 0.0 - 1.0
+  status         String       @default("PENDING") // PENDING, REVIEWED, BLOCKED
+  evidence       Json?
+  createdAt      DateTime     @default(now())
+}
