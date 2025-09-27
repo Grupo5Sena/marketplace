@@ -4,6 +4,7 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,30 +15,30 @@ datasource db {
 }
 
 model User {
-  id             String       @id @default(uuid())
-  email          String       @unique
-  password       String?
-  name           String
-  avatar         String?
-  phone          String?
-  role           UserRole     @default(USER)
-  status         UserStatus   @default(ACTIVE)
-  lastLogin      DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String?
+  name            String
+  avatar          String?
+  phone           String?
+  role            UserRole         @default(USER)
+  status          UserStatus       @default(ACTIVE)
+  lastLogin       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   // Relaciones
   store           Store?
   cart            Cart?
   orders          Order[]
   reviews         Review[]
-  sentMessages    ChatMessage[] @relation("MessageFrom")
-  receivedMessages ChatMessage[] @relation("MessageTo")
+  sentMessages    ChatMessage[]    @relation("MessageFrom")
+  receivedMessages ChatMessage[]   @relation("MessageTo")
   notifications   Notification[]
   behaviors       UserBehavior[]
   payments        Payment[]
   sessions        AuthSession[]
-  recommendations Recommendation[]  // Relación agregada
+  recommendations Recommendation[]
 
   @@index([role])
   @@index([status])
@@ -83,61 +84,61 @@ model Store {
 
   // Relaciones
   owner          User         @relation(fields: [ownerId], references: [id])
-  ownerId        String       @unique
+  ownerId        String       @unique // un usuario = una tienda
   products       Product[]
   orders         Order[]
   reviews        Review[]
   analytics      StoreAnalytics?
   crm            StoreCRM?
 
-  @@index([slug])
   @@index([isActive])
   @@index([rating])
 }
 
 model Product {
-  id             String       @id @default(uuid())
+  id             String        @id @default(uuid())
   name           String
-  slug           String       @unique
+  slug           String
   description    String
   price          Float
   compareAtPrice Float?
   cost           Float?
   stock          Int
-  sku            String?      @unique
+  sku            String?       @unique
   barcode        String?
   weight         Float?
   dimensions     Json?
   status         ProductStatus @default(ACTIVE)
-  isFeatured     Boolean      @default(false)
+  isFeatured     Boolean       @default(false)
   tags           String[]
   metadata       Json?
-  views          Int          @default(0)
-  purchases      Int          @default(0)
-  rating         Float        @default(0)
-  totalReviews   Int          @default(0)
+  views          Int           @default(0)
+  purchases      Int           @default(0)
+  rating         Float         @default(0)
+  totalReviews   Int           @default(0)
   images         Json?
   videoUrl       String?
   seoTitle       String?
   seoDescription String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   // Relaciones
-  store          Store        @relation(fields: [storeId], references: [id])
+  store          Store         @relation(fields: [storeId], references: [id])
   storeId        String
-  category       Category     @relation(fields: [categoryId], references: [id])
+  category       Category      @relation(fields: [categoryId], references: [id])
   categoryId     String
   orders         OrderItem[]
   reviews        Review[]
   recommendations Recommendation[]
-  cartItems      CartItem[]    // Relación agregada
+  cartItems      CartItem[]
 
-  @@index([slug])
+  @@unique([slug, storeId]) // slug único por tienda
   @@index([status])
   @@index([isFeatured])
   @@index([storeId])
-  // @@fulltext([name, description])  // Comentado porque no es soportado en PostgreSQL
+  @@index([categoryId])
+  @@index([storeId, status])
 }
 
 enum ProductStatus {
@@ -171,27 +172,27 @@ model Cart {
 }
 
 model CartItem {
-  id             String       @id @default(uuid())
-  cart           Cart         @relation(fields: [cartId], references: [id])
+  id             String    @id @default(uuid())
+  cart           Cart      @relation(fields: [cartId], references: [id])
   cartId         String
-  product        Product      @relation(fields: [productId], references: [id])
+  product        Product   @relation(fields: [productId], references: [id])
   productId      String
-  quantity       Int          @default(1)
+  quantity       Int       @default(1)
   priceSnapshot  Float
 
   @@unique([cartId, productId])
 }
 
 model Order {
-  id             String       @id @default(uuid())
-  code           String       @unique
-  user           User         @relation(fields: [userId], references: [id])
+  id             String        @id @default(uuid())
+  code           String        @unique
+  user           User          @relation(fields: [userId], references: [id])
   userId         String
-  store          Store        @relation(fields: [storeId], references: [id])
+  store          Store         @relation(fields: [storeId], references: [id])
   storeId        String
   items          OrderItem[]
   total          Float
-  status         OrderStatus  @default(PENDING)
+  status         OrderStatus   @default(PENDING)
   paymentStatus  PaymentStatus @default(PENDING)
   shippingStatus ShippingStatus @default(PENDING)
   shippingAddress Json
@@ -199,14 +200,16 @@ model Order {
   trackingNumber String?
   trackingUrl    String?
   notes          String?
-  payment        Payment?     // Relación agregada
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  payment        Payment?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([code])
   @@index([status])
   @@index([userId])
   @@index([storeId])
+  @@index([userId, status])
+  @@index([storeId, status])
 }
 
 enum OrderStatus {
@@ -236,10 +239,10 @@ enum ShippingStatus {
 }
 
 model OrderItem {
-  id             String       @id @default(uuid())
-  order          Order        @relation(fields: [orderId], references: [id])
+  id             String   @id @default(uuid())
+  order          Order    @relation(fields: [orderId], references: [id])
   orderId        String
-  product        Product      @relation(fields: [productId], references: [id])
+  product        Product  @relation(fields: [productId], references: [id])
   productId      String
   productName    String
   productPrice   Float
@@ -249,12 +252,10 @@ model OrderItem {
 
 model Payment {
   id             String       @id @default(uuid())
-  user           User         @relation(fields: [userId], references: [id])  // Relación agregada
+  user           User         @relation(fields: [userId], references: [id])
   userId         String
-
   order          Order        @relation(fields: [orderId], references: [id])
   orderId        String       @unique
-
   amount         Float
   currency       String       @default("USD")
   method         PaymentMethod
@@ -305,31 +306,31 @@ enum ReviewStatus {
 }
 
 model ChatMessage {
-  id             String       @id @default(uuid())
-  from           User         @relation("MessageFrom", fields: [fromId], references: [id])
-  fromId         String
-  to             User         @relation("MessageTo", fields: [toId], references: [id])
-  toId           String
-  message        String
-  read           Boolean      @default(false)
-  metadata       Json?
-  timestamp      DateTime     @default(now())
+  id        String   @id @default(uuid())
+  from      User     @relation("MessageFrom", fields: [fromId], references: [id])
+  fromId    String
+  to        User     @relation("MessageTo", fields: [toId], references: [id])
+  toId      String
+  message   String
+  read      Boolean  @default(false)
+  metadata  Json?
+  timestamp DateTime @default(now())
 
   @@index([fromId, toId])
   @@index([read])
 }
 
 model Notification {
-  id             String       @id @default(uuid())
-  user           User         @relation(fields: [userId], references: [id])
-  userId         String
-  title          String
-  message        String
-  type           NotificationType
-  read           Boolean      @default(false)
-  actionUrl      String?
-  metadata       Json?
-  createdAt      DateTime     @default(now())
+  id        String           @id @default(uuid())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  read      Boolean          @default(false)
+  actionUrl String?
+  metadata  Json?
+  createdAt DateTime         @default(now())
 
   @@index([userId, read])
 }
@@ -344,31 +345,38 @@ enum NotificationType {
 }
 
 model UserBehavior {
-  id             String       @id @default(uuid())
-  user           User         @relation(fields: [userId], references: [id])
-  userId         String
-  eventType      String
-  targetId       String?
-  targetType     String?
-  metadata       Json?
-  timestamp      DateTime     @default(now())
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  eventType  String
+  targetId   String?
+  targetType BehaviorTargetType?
+  metadata   Json?
+  timestamp  DateTime @default(now())
 
   @@index([userId])
   @@index([eventType])
   @@index([targetType, targetId])
 }
 
+enum BehaviorTargetType {
+  PRODUCT
+  CATEGORY
+  STORE
+  SEARCH
+}
+
 model Recommendation {
-  id             String       @id @default(uuid())
-  user           User         @relation(fields: [userId], references: [id])
-  userId         String
-  product        Product      @relation(fields: [productId], references: [id])
-  productId      String
-  score          Float
-  reason         String?
-  source         String
-  expiresAt      DateTime
-  createdAt      DateTime     @default(now())
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  score     Float
+  reason    String?
+  source    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([score])
@@ -378,47 +386,47 @@ model Recommendation {
 // === MÓDULOS AVANZADOS ===
 
 model StoreAnalytics {
-  id             String       @id @default(uuid())
-  store          Store        @relation(fields: [storeId], references: [id])
-  storeId        String       @unique
-  totalViews     Int          @default(0)
-  totalSales     Int          @default(0)
-  conversionRate Float        @default(0)
-  avgOrderValue  Float        @default(0)
-  customerLTV    Float        @default(0)
-  lastUpdated    DateTime     @updatedAt
+  id             String   @id @default(uuid())
+  store          Store    @relation(fields: [storeId], references: [id])
+  storeId        String   @unique
+  totalViews     Int      @default(0)
+  totalSales     Int      @default(0)
+  conversionRate Float    @default(0)
+  avgOrderValue  Float    @default(0)
+  customerLTV    Float    @default(0)
+  lastUpdated    DateTime @updatedAt
 }
 
 model StoreCRM {
-  id             String       @id @default(uuid())
-  store          Store        @relation(fields: [storeId], references: [id])
-  storeId        String       @unique
-  totalCustomers Int          @default(0)
-  returningRate  Float        @default(0)
-  segments       Json?        // { "frequent": 120, "inactive": 45, "premium": 30 }
+  id             String   @id @default(uuid())
+  store          Store    @relation(fields: [storeId], references: [id])
+  storeId        String   @unique
+  totalCustomers Int      @default(0)
+  returningRate  Float    @default(0)
+  segments       Json?
   lastActivity   DateTime?
 }
 
 model AdminAnalytics {
-  id             String       @id @default(uuid())
-  date           DateTime     @unique
+  id             String   @id @default(uuid())
+  date           DateTime @unique
   totalUsers     Int
   totalStores    Int
   totalOrders    Int
   totalRevenue   Float
   avgTicket      Float
   conversionRate Float
-  topCategories  Json?        // [{ name: "Electrónica", sales: 12000 }]
-  topSellers     Json?        // [{ storeId: "...", sales: 5000 }]
+  topCategories  Json?
+  topSellers     Json?
 }
 
 model FraudDetection {
-  id             String       @id @default(uuid())
-  orderId        String?
-  userId         String?
-  type           String       // "multiple_accounts", "suspicious_ip", "chargeback_risk"
-  score          Float        // 0.0 - 1.0
-  status         String       @default("PENDING") // PENDING, REVIEWED, BLOCKED
-  evidence       Json?
-  createdAt      DateTime     @default(now())
+  id        String   @id @default(uuid())
+  orderId   String?
+  userId    String?
+  type      String
+  score     Float
+  status    String   @default("PENDING")
+  evidence  Json?
+  createdAt DateTime @default(now())
 }
