@@ -2,10 +2,11 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class ProductsService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService, private SearchService: SearchService) {}
 
     async create(storeId: string, ownerId: string, dto: CreateProductDto) {
         const store = await this.prisma.store.findUnique({ where: { id: storeId } });
@@ -14,9 +15,9 @@ export class ProductsService {
             throw new ForbiddenException('No puedes agregar productos a esta tienda');
         }
 
-        return this.prisma.product.create({
-            data: { ...dto, storeId },
-        });
+        const product = await this.prisma.product.create({ data: { ...dto, storeId } });
+        await this.SearchService.indexProduct(product);
+        return product;
     }
 
     async findAll() {
@@ -53,10 +54,9 @@ export class ProductsService {
             throw new ForbiddenException('No puedes modificar este producto');
         }
 
-        return this.prisma.product.update({
-            where: { id },
-            data: { ...dto },
-        });
+        const update = this.prisma.product.update({ where: { id }, data: { ...dto } });
+        await this.SearchService.updateProduct(update);
+        return update; 
     }
 
     async remove(id: string, ownerId: string) {
@@ -69,6 +69,7 @@ export class ProductsService {
             throw new ForbiddenException('No puedes eliminar este producto');
         }
 
-        return this.prisma.product.delete({ where: { id }});
+        await this.prisma.product.delete({ where: { id }});
+        await this.SearchService.removeProduct(id); 
     }
 }
