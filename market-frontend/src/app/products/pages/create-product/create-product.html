@@ -1,0 +1,107 @@
+<section class="container mx-auto py-8">
+  <h2 class="text-2xl font-semibold mb-4">Dashboard de tu Tienda</h2>
+
+  <!-- Formulario Crear / Editar -->
+  <form
+    [formGroup]="form"
+    (ngSubmit)="saveProduct()"
+    class="mb-6 border p-4 rounded"
+  >
+    <h3 class="font-bold mb-4">
+      {{ editingId ? 'Editar Producto' : 'Crear Producto' }}
+    </h3>
+
+    <div class="mb-2">
+      <input
+        formControlName="name"
+        placeholder="Nombre"
+        class="w-full p-2 border rounded"
+      />
+    </div>
+
+    <div class="mb-2">
+      <textarea
+        formControlName="description"
+        placeholder="Descripción"
+        class="w-full p-2 border rounded"
+      ></textarea>
+    </div>
+
+    <div class="mb-2">
+      <input
+        formControlName="price"
+        type="number"
+        placeholder="Precio"
+        class="w-full p-2 border rounded"
+      />
+    </div>
+
+    <div class="mb-2">
+      <input
+        formControlName="stock"
+        type="number"
+        placeholder="Stock"
+        class="w-full p-2 border rounded"
+      />
+    </div>
+
+    <div class="mb-2">
+      <input
+        formControlName="tags"
+        placeholder="Tags (separados por coma)"
+        class="w-full p-2 border rounded"
+      />
+    </div>
+
+    <div class="mb-2">
+      <select
+        formControlName="categoryId"
+        class="w-full p-2 border rounded"
+      >
+        <option value="">Selecciona categoría</option>
+        @for (c of categoryList(); track c.id) {
+          <option [value]="c.id">{{ c.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="mb-2">
+      <label class="block mb-1">Imagen del producto</label>
+      <input type="file" class="w-full p-2 border rounded" (change)="onFileSelected($event)" />
+      @if (previewUrl) {
+        <img [src]="previewUrl" class="h-36 mt-2 rounded object-cover" />
+      }
+      
+    </div>
+
+    <div class="mb-4">
+      <label class="flex items-center gap-2">
+        <input type="checkbox" formControlName="isFeatured" />
+        Destacado
+      </label>
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        type="submit"
+        [disabled]="form.invalid"
+        class="py-2 px-4 rounded text-white transition"
+        [class.bg-indigo-600]="form.valid"
+        [class.bg-gray-400]="form.invalid"
+        [class.cursor-not-allowed]="form.invalid"
+      >
+        {{ editingId ? 'Actualizar' : 'Crear' }}
+      </button>
+
+      @if (editingId) {
+        <button
+          type="button"
+          class="py-2 px-4 border rounded"
+          (click)="cancelEdit()"
+        >
+          Cancelar
+        </button>
+      }
+    </div>
+  </form>
+</section>

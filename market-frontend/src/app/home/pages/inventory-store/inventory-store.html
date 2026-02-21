@@ -1,0 +1,113 @@
+<div class="p-6">
+  <h2 class="text-2xl font-semibold mb-6">Inventario</h2>
+
+  @if (inventorySignal.loading()) {
+    <div class="text-gray-500">Cargando inventario...</div>
+  }
+
+  @if (inventorySignal.error()) {
+    <div class="text-red-500 mb-4">
+      {{ inventorySignal.error() }}
+    </div>
+  }
+
+  @if (!inventorySignal.loading() && inventorySignal.inventory().length === 0) {
+    <div class="text-gray-400">
+      No hay productos en el inventario.
+    </div>
+  }
+
+  @if (inventorySignal.inventory().length > 0) {
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 border-b">
+          <tr class="text-left text-gray-600 uppercase text-xs">
+            <th class="px-4 py-3">Producto</th>
+            <th class="px-4 py-3">SKU</th>
+            <th class="px-4 py-3">Precio</th>
+            <th class="px-4 py-3">Stock actual</th>
+            <th class="px-4 py-3">Actualizar stock</th>
+            <th class="px-4 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y">
+          @for (product of inventorySignal.inventory(); track product.id) {
+            <tr
+              class="hover:bg-gray-50 transition"
+              [class.bg-yellow-50]="highlightedProductId() === product.id"
+              [class.ring-2]="highlightedProductId() === product.id"
+              [class.ring-blue-400]="highlightedProductId() === product.id"
+            >
+              <!-- Producto -->
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded bg-gray-100 overflow-hidden">
+                    @if (product.images?.length) {
+                      <img
+                        [src]="product.images?.[0] | imageUrl"
+                        class="h-full w-full object-cover"
+                      />
+                    }
+                  </div>
+                  <span class="font-medium text-gray-800">
+                    {{ product.name }}
+                  </span>
+                </div>
+              </td>
+
+              <!-- SKU -->
+              <td class="px-4 py-3 text-gray-500">
+                {{ product.sku || '—' }}
+              </td>
+
+              <!-- Precio -->
+              <td class="px-4 py-3">
+                ${{ product.price }}
+              </td>
+
+              <!-- Stock actual -->
+              <td class="px-4 py-3">
+                <span
+                  class="font-semibold"
+                  [class.text-red-500]="product.stock === 0"
+                >  
+                  {{ product.stock }}
+                </span>
+              </td>
+
+              <!-- Actualizar stock -->
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    class="w-20 border rounded px-2 py-1"
+                    [value]="stockInputs()[product.id]"
+                    (input)="updateStockInput(product.id, $any($event.target).valueAsNumber)"
+                  />
+
+                  <button
+                    class="text-blue-600 hover:underline text-xs"
+                    (click)="updateStock(product)"
+                  >
+                    Guardar
+                  </button>
+                </div>
+              </td>
+
+              <!-- Acciones -->
+              <td class="px-4 py-3 text-right">
+                <div class="flex justify-end gap-3 text-gray-500">
+                  <button title="Editar">✏️</button>
+                  <button title="Ver">👁️</button>
+                  <button title="Eliminar" class="text-red-500">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

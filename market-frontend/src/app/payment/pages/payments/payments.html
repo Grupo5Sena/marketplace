@@ -1,0 +1,23 @@
+<section class="container mx-auto py-8">
+  <h2 class="text-2xl font-semibold mb-4">Pagos</h2>
+
+  @if (paymentsSignal.loading()) {
+    <p>Cargando...</p>
+  } @else if (paymentsSignal.payments().length === 0) {
+    <p class="text-gray-500 text-center py-10">No hay pagos aún.</p>
+  } @else {
+    <div class="space-y-4">
+      @for (payment of paymentsSignal.payments(); track payment.id) {
+        <div class="border rounded p-4">
+          <div class="flex justify-between mb-2">
+            <div>Orden #{{ payment.order?.code || payment.orderId }}</div>
+            <div class="font-semibold text-blue-600">{{ payment.amount }}</div>
+          </div>
+          <div class="text-sm text-gray-500 mb-2">Estado: {{ payment.status }}</div>
+          <div class="text-sm text-gray-500">Fecha: {{ payment.createdAt }}</div>
+        </div>
+      }
+    </div>
+  }
+</section>
+

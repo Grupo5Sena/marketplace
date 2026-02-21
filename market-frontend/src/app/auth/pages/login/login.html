@@ -1,0 +1,122 @@
+<div class="flex flex-col lg:flex-row min-h-screen">
+
+    <!-- SECCIÓN DEL FORMULARIO -->
+    <div class="flex-1 flex items-center justify-center bg-white p-6 lg:p-12">
+        <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+
+            <!-- ENCABEZADO -->
+            <div>
+                <h2 class="text-2xl font-bold mb-4 text-center">Bienvenido de nuevo</h2>
+                <p class="mt-3 text-center text-sm">
+                    ¿No tienes una cuenta?
+                    <a class="text-indigo-600 hover:underline" routerLink="/register">Regístrate ahora</a>
+                </p>
+            </div>
+
+            <!-- FORMULARIO -->
+            <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4 mt-6" aria-labelledby="login-title" novalidate>
+
+                <!-- EMAIL -->
+                <div>
+                    <label for="email" class="block text-sm font-medium">Email</label>
+                    <input
+                        type="email"
+                        formControlName="email"
+                        class="w-full p-2 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                        placeholder="Ingresa tu email"
+                        autocomplete="email"
+                        aria-invalid="{{ form.get('email')?.invalid ? 'true' : 'false'}}"
+                        aria-describedby="email-error"
+                    >
+                    @for (err of fieldErrors('email'); track $index) {
+                        <p id="email-error" class="text-xs text-red-600 mt-1">{{ err }}</p>
+                    }
+                </div>
+
+                <!-- PASSWORD -->
+                <div>
+                    <label for="password" class="block text-sm font-medium">Password</label>
+                    <div class="relative mt-1">
+                        <input 
+                            [type]="passwordVisible() ? 'text' : 'password'"
+                            formControlName="password"
+                            placeholder="Ingresa tu contraseña"
+                            class="w-full p-2 border border-gray-300 rounded pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            autocomplete="current-password"
+                            aria-invalid="{{ form.get('password')?.invalid ? 'true' : 'false' }}"
+                            aria-describedby="password-error"
+                        >
+                    </div>
+                    @for (err of fieldErrors('password'); track $index) {
+                        <p id="password-error" class="text-xs text-red-600 mt-1">{{ err }}</p>
+                    }
+                </div>
+
+                <!-- RECORDAR Y LINK -->
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" formControlName="remember" class="h-4 w-4">
+                    <label for="remember" class="text-sm">Recordarme</label>
+                    <a class="ml-auto text-sm text-indigo-600 hover:underline" routerLink="/auth/forgot">¿Olvidaste tu Contraseña?</a>
+                </div>
+
+                <!-- ERROR GENERAL -->
+                @if (error()) {
+                    <div class="text-sm text-red-600">{{ error() }}</div>
+                }
+
+                <!-- BOTÓN -->
+                <button
+                    type="submit"
+                    class="w-full p-2 bg-indigo-600 text-white rounded disabled:opacity-60 flex items-center justify-center gap-2"
+                    [disabled]="loading()"
+                    aria-busy="{{ loading() }}"
+                >
+                    @if (loading()) {
+                        <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.25" stroke-width="4"></circle>
+                            <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+                        </svg>
+                        <span>Ingresando...</span>
+                    } @else {
+                        <span>Ingresar</span>
+                    }
+                </button>
+
+                <!-- OTRAS OPCIONES -->
+                <div class="mt-6">
+                    <div class="relative flex justify-center text-sm">
+                        <span class="bg-white px-2 text-[#4c809a]">o inicia sesión con</span>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <a class="inline-flex w-full justify-center items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium text-white shadow-sm bg-slate-800" href="#">
+                            <i class="fa-brands fa-google"></i>
+                            <span>Google</span>
+                        </a>
+                        <a class="inline-flex w-full justify-center items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium text-white shadow-sm bg-slate-800" href="#">
+                            <i class="fa-brands fa-facebook"></i>
+                            <span>Facebook</span>
+                        </a>
+                        <a class="inline-flex w-full justify-center items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium text-white shadow-sm bg-slate-800" href="#">
+                            <i class="fa-brands fa-microsoft"></i>
+                            <span>Microsoft</span>
+                        </a>
+                        <a class="inline-flex w-full justify-center items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium text-white shadow-sm bg-slate-800" href="#">
+                            <i class="fa-brands fa-apple"></i>
+                            <span>Apple</span>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE IMAGEN -->
+    <div class="hidden lg:flex flex-1 items-center justify-center bg-gray-50">
+        <img 
+            src="collage.png" 
+            alt="collage" 
+            class="object-contain h-full w-full rounded-r-xl"
+        >
+    </div>
+</div>

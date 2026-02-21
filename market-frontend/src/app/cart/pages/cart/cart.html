@@ -1,0 +1,46 @@
+<section class="container mx-auto py-8">
+      <h2 class="text-2xl font-semibold mb-4">Carrito</h2>
+
+      @if (cart.items().length === 0) {
+        <p>Tu carrito está vacío.</p>
+      } @else {
+        <div class="space-y-4">
+          @for (it of cart.items(); track it.product.id) {
+            <div class="flex items-center gap-4 border rounded p-3">
+              <img
+                [src]="it.product.images?.[0] | imageUrl"
+                class="w-20 h-20 object-cover rounded"
+              />
+
+              <div class="flex-1">
+                <div class="font-medium">{{ it.product.name }}</div>
+                <div class="text-sm text-gray-500">
+                  {{ it.product.price | currency }}
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button (click)="decrease(it)" class="px-2 py-1 border">-</button>
+                <div>{{ it.quantity }}</div>
+                <button (click)="increase(it)" class="px-2 py-1 border">+</button>
+              </div>
+
+              <div class="ml-4">
+                <button (click)="remove(it)" class="text-red-600">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+           }
+
+          <div class="text-right font-semibold">
+            Subtotal: {{ cart.subtotal() | currency }}
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button (click)="clear()" class="px-4 py-2 bg-gray-200 rounded">Vaciar</button>
+            <button (click)="checkout()" class="px-4 py-2 bg-indigo-600 text-white rounded">Ir a pagar</button>
+          </div>
+        </div>
+      }
+</section>

@@ -1,0 +1,89 @@
+<section class="max-w-3xl mx-auto mt-12 px-4">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+        Tu Perfil
+    </h2>
+
+    @if (loading()) {
+        <div class="flex justify-center">
+            <span class="animate-pulse text-gray-400">
+                Cargando perfil...
+            </span>
+        </div>
+
+    } @else if (user()) {
+        <div
+            class="bg-white rounded-3xl shadow-lg p-8 flex flex-col items-center
+                   transition hover:shadow-2xl"
+        >
+            <!-- Avatar -->
+            <div class="relative">
+                <img
+                    [src]="user()?.avatar | imageUrl"
+                    alt="Avatar"
+                    class="w-28 h-28 rounded-full object-cover border-4 border-indigo-500"
+                />
+                <div
+                    class="absolute inset-0 bg-black/40 rounded-full
+                        flex items-center justify-center
+                        opacity-0 group-hover:opacity-100 transition"
+                    >
+                    <span class="text-white text-sm font-medium">
+                    Cambiar foto
+                    </span>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <p class="mt-4 text-xl font-semibold text-gray-800">
+                {{ user()?.name }}
+            </p>
+            <p class="text-gray-500">
+                {{ user()?.email }}
+            </p>
+
+            <!-- Actions -->
+            <div class="mt-6 flex flex-wrap gap-4 justify-center">
+                <a
+                    routerLink="/user/change-password"
+                    class="px-5 py-2 rounded-xl bg-cyan-600 text-white font-medium
+                           hover:bg-cyan-700 transition"
+                >
+                    Cambiar Contraseña
+                </a>
+
+                <a
+                    routerLink="/user/edit"
+                    class="px-5 py-2 rounded-xl bg-indigo-600 text-white font-medium
+                           hover:bg-indigo-700 transition"
+                >
+                    Editar Perfil
+                </a>
+
+                @if (!isSeller()) {
+                    <a
+                        routerLink="/create-store"
+                        class="px-5 py-2 rounded-xl bg-green-600 text-white font-medium
+                               hover:bg-green-700 transition"
+                    >
+                        Crear mi Tienda
+                    </a>
+                }
+
+                @if (isSeller()) {
+                    <a
+                        routerLink="/store"
+                        class="px-5 py-2 rounded-xl bg-gray-800 text-white font-medium
+                               hover:bg-gray-900 transition"
+                    >
+                        Ir a mi tienda
+                    </a>
+                }
+            </div>
+        </div>
+
+    } @else {
+        <p class="text-center text-gray-500">
+            No hay información del usuario.
+        </p>
+    }
+</section>

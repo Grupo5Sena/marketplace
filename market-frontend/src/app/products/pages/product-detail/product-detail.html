@@ -1,0 +1,30 @@
+<section class="container mx-auto py-8">
+  @if (products.loading()) {
+    <p>Cargando producto...</p>
+  } @else if (products.current()) {
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="md:col-span-2">
+        <!-- Imagen -->
+        @if (products.current()?.images?.length) {
+          <img [src]="products.current()?.images?.[0] | imageUrl" class="w-full h-96 object-cover rounded" />
+        } @else {
+          <div class="w-full h-96 bg-gray-200 flex items-center justify-center rounded text-gray-500">
+            Sin imagen
+          </div>
+        }
+
+        <!-- Nombre y descripción -->
+        <h1 class="text-2xl font-semibold mt-4">{{ products.current()?.name }}</h1>
+        <p class="mt-2 text-gray-600">{{ products.current()?.description }}</p>
+      </div>
+
+      <aside class="p-4 border rounded">
+        <div class="text-xl font-bold mb-2">{{ products.current()?.price | currency }}</div>
+        <button class="w-full py-2 bg-indigo-600 text-white rounded" (click)="addToCart()">
+          Agregar al carrito
+        </button>
+        <a routerLink="/cart" class="block mt-3 text-sm text-indigo-600">Ir al carrito</a>
+      </aside>
+    </div>
+  }
+</section>

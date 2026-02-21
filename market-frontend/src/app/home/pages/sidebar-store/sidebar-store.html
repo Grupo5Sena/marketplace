@@ -1,0 +1,141 @@
+<div class="flex min-h-screen bg-gray-100">
+  <aside class="w-64 bg-white border-r min-h-screen flex flex-col border-gray-300">
+    
+    <!-- NAV -->
+    <nav class="flex-1 px-3 py-4 text-sm space-y-6">
+
+      <!-- DASHBOARD -->
+      <a
+        routerLink="/store/dashboard"
+        routerLinkActive="bg-blue-50 text-blue-600"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+      >
+        📊 Dashboard
+      </a>
+
+      <!-- PRODUCTOS -->
+      <div>
+        <p class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase">Productos</p>
+        <div class="space-y-1">
+          <a
+            routerLink="/store/create-product"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            ➕ Crear producto
+          </a>
+          <a
+            routerLink="/store/product-list"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            📦 Todos los productos
+          </a>
+          <a
+            routerLink="/store/inventory"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            📊 Inventario
+          </a>
+        </div>
+      </div>
+
+      <!-- VENTAS -->
+      <div>
+        <p class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase">Ventas</p>
+        <div class="space-y-1">
+          <a
+            routerLink="/store/orders"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            🛒 Pedidos
+          </a>
+          <a
+            routerLink="/store/payments"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            💳 Pagos
+          </a>
+          <a
+            routerLink="/store/returns"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            ↩️ Devoluciones
+          </a>
+        </div>
+      </div>
+
+      <!-- MARKETING -->
+      <div>
+        <p class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase">Marketing</p>
+        <div class="space-y-1">
+          <a
+            routerLink="/store/campaigns"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            📣 Campañas
+          </a>
+          <a
+            routerLink="/store/discounts"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            🏷 Descuentos
+          </a>
+          <a
+            routerLink="/store/ai-marketing"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            ✨ Marketing IA
+          </a>
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div>
+        <p class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase">Clientes</p>
+        <div class="space-y-1">
+          <a
+            routerLink="/store/customers"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            👥 Clientes
+          </a>
+          <a
+            routerLink="/store/messages"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+          >
+            💬 Mensajes
+          </a>
+        </div>
+      </div>
+
+      </nav>
+
+      <!-- FOOTER -->
+      <div class="border-t px-3 py-4 space-y-1 border-gray-300">
+        <a
+          routerLink="/store/settings"
+          routerLinkActive="bg-blue-50 text-blue-600"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+        >
+          🏪 Editar tienda
+        </a>
+        <a
+          routerLink="/store/settings"
+          routerLinkActive="bg-blue-50 text-blue-600"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
+        >
+          ⚙️ Configuración
+        </a>
+      </div>
+  </aside>
+</div>

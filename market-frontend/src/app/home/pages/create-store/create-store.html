@@ -1,0 +1,77 @@
+<div class="flex flex-col lg:flex-row min-h-screen">
+
+  <!-- SECCIÓN DEL FORMULARIO -->
+  <div class="flex-1 flex items-center justify-center bg-white p-6 lg:p-12">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+
+      <!-- ENCABEZADO -->
+      <div>
+        <h2 class="text-2xl font-bold mb-4 text-center">
+          Crear tu tienda
+        </h2>
+      </div>
+
+      <!-- FORMULARIO -->
+      <form [formGroup]="form" (ngSubmit)="create()" class="space-y-4 mt-6" novalidate>
+
+        <!-- NOMBRE -->
+        <div>
+          <label class="block text-sm font-medium">
+            Nombre de la tienda
+          </label>
+
+          <input 
+            type="text"
+            formControlName="name"
+            class="w-full p-2 mt-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-400"
+            placeholder="Ingresa el nombre de la tienda"
+          />
+
+          @if (form.controls.name.invalid && form.controls.name.touched) {
+            <small class="text-red-500">
+            El nombre es obligatorio
+          </small>
+          }          
+        </div>
+
+        <!-- LOGO -->
+        <div>
+          <label class="block text-sm font-medium">
+            Logo (URL)
+          </label>
+
+          <input
+            type="url"
+            formControlName="logo"
+            class="w-full p-2 mt-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-400"
+            placeholder="https://..."
+          />
+        </div>
+
+        <!-- DESCRIPCIÓN -->
+        <div>
+          <label class="block text-sm font-medium">
+            Descripción
+          </label>
+
+          <textarea
+            formControlName="description"
+            rows="3"
+            class="w-full p-2 mt-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-400"
+            placeholder="Describe tu tienda"
+          ></textarea>
+        </div>
+
+        <!-- BOTÓN -->
+        <button
+          type="submit"
+          [disabled]="form.invalid"
+          class="w-full p-2 bg-indigo-600 text-white rounded disabled:opacity-60 flex items-center justify-center gap-2"
+        >
+          Crear tienda
+        </button>
+
+      </form>
+    </div>
+  </div>
+</div>

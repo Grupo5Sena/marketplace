@@ -1,0 +1,56 @@
+<section class="container mx-auto py-8">
+  <h2 class="text-2xl font-semibold mb-6">Mis Pedidos</h2>
+
+  <!-- Loading -->
+  @if (ordersSignal.loading()) {
+    <p class="ml-2 text-gray-600">Cargando pedidos...</p>
+    <!-- No hay pedidos -->
+  } @else if (ordersSignal.orders().length === 0) {
+    <p class="text-gray-500 text-center py-10">No tienes pedidos aún.</p>
+  }
+
+  <!-- Lista de pedidos -->
+  @else {
+    <div class="space-y-4">
+      @for (order of ordersSignal.orders(); track order.id) {
+        <div class="border rounded-lg p-4 hover:shadow-md transition">
+          <div class="flex justify-between items-center mb-2">
+            <div class="font-medium text-gray-700">Orden #{{ order.id }}</div>
+            <div class="font-semibold text-blue-600">{{ order.total | currency }}</div>
+          </div>
+
+          <div class="flex justify-between text-sm text-gray-500 mb-2">
+            <div>{{ order.items.length }} producto(s)</div>
+            <div>{{ order.createdAt | date:'short' }}</div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="px-2 py-1 rounded text-white font-medium 
+              @if(order.status === 'PENDING') bg-yellow-400
+              @else if(order.status === 'PAID') bg-blue-500
+              @else if(order.status === 'SHIPPED') bg-green-500
+              @else bg-red-500
+              ">
+              {{ order.status }}
+            </span>
+
+            <!-- Botón de detalles (opcional) -->
+            <button class="text-sm text-blue-600 hover:underline">
+              Ver detalles
+            </button>
+          </div>
+
+          <!-- Lista de items -->
+          <div class="mt-2 border-t pt-2">
+            @for (item of order.items; track item.productId) {
+              <div class="flex justify-between text-sm text-gray-600 py-1">
+                <div>{{ item.title }} x{{ item.quantity }}</div>
+                <div>{{ item.price | currency }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

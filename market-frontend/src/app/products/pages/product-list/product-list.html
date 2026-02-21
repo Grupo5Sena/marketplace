@@ -1,0 +1,62 @@
+<section class="p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-semibold">Catálogo</h2>
+    </div>
+
+    @if (products.loading()) {
+        <p>Cargando productos...</p>
+        } @else if (products.list().length === 0) {
+            <p>No hay productos.</p>
+        } @else {
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                @for (p of products.list(); track p.id) {
+                    <div class="border rounded p-3 flex flex-col">
+                        <img
+                        [src]="p.images?.[0] | imageUrl"
+                        class="mb-2 h-36 object-cover rounded"
+                        />
+                        <div class="flex-1 py-2">
+                            <a
+                            [routerLink]="['/products', p.id]"
+                            class="font-medium hover:underline"
+                            >
+                            {{ p.name }}
+                            </a>
+                            <div class="flex items-center mt-1 py-2">
+                            <span class="text-yellow-400 material-symbols-outlined text-base">star</span>
+                            <span class="text-yellow-400 material-symbols-outlined text-base">star</span>
+                            <span class="text-yellow-400 material-symbols-outlined text-base">star</span>
+                            <span class="text-yellow-400 material-symbols-outlined text-base">star</span>
+                            <span class="text-gray-300 dark:text-gray-600 material-symbols-outlined text-base">star</span>
+                            <span
+                                class="text-xs ml-1"
+                                [ngClass]="{
+                                    'text-green-600': p.stock >= 10,
+                                    'text-yellow-500': p.stock > 3 && p.stock < 10,
+                                    'text-red-500': p.stock <= 3
+                                }"
+                                >
+                                @if (p.stock > 0) {
+                                    {{ p.stock }} en stock
+                                } @else {
+                                    Sin stock
+                                }
+                                </span>
+                            </div>
+                            <div class="text-lg font-bold text-primary mt-1 py-2">
+                                {{ p.price | currency }}
+                            </div>
+                        </div>
+                        <button
+                        (click)="addToCart(p)"
+                        [disabled]="p.stock === 0"
+                        class="mt-3 w-full mt-2 bg-indigo-500 flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary/10 dark:bg-primary/20 text-primary dark:text-blue-300 text-sm font-bold hover:bg-primary/20 dark:hover:bg-primary/30">
+                        <span class="material-symbols-outlined">add_shopping_cart</span>
+                        Añadir al carrito
+                        </button>
+                    </div>
+                  }
+            </div>
+          }
+</section>
+
